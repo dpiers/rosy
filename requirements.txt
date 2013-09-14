@@ -1,0 +1,12 @@
+Flask==0.10.1
+Jinja2==2.7.1
+MarkupSafe==0.18
+WebOb==1.2.3
+Werkzeug==0.9.4
+-e git+git@github.com:edx/XBlock.git@aa0d60627deac1b3005eb5eb57b44566eb5e5fc5#egg=XBlock-dev
+astroid==1.0.0
+itsdangerous==0.23
+logilab-common==0.60.0
+pep8==1.4.6
+pylint==1.0.0
+wsgiref==0.1.2
