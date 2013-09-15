@@ -81,7 +81,25 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 	buf.ReadFrom(stderr)
 	buf.ReadFrom(stdout)
 
-	w.Write(buf.Bytes())
+	done := make(chan error)
+	go func() {
+		done <- cmd.Wait()
+	}()
+	select {
+	case <-time.After(3 * time.Second):
+		if err := cmd.Process.Kill(); err != nil {
+			log.Fatal("failed to kill: ", err)
+		}
+		<-done // allow goroutine to exit
+		w.Write([]byte("process took to long to complete"))
+	case err := <-done:
+		if err != nil {
+			w.WriteJson(err)
+		} else {
+			w.Write(buf.Bytes())
+		}
+	}
+
 }
 
 func EvalCpp(w *rest.ResponseWriter, r *rest.Request) {
