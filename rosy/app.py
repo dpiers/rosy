@@ -54,6 +54,17 @@ class User(db.Model):
     def __repr__(self):
         return '<User: %r>' % self.email
 
+    def to_json(self):
+        user_type = 'student'
+        teacher = Teacher.query.filter_by(user=self).one()
+        if teacher:
+            user_type = 'teacher'
+        return {
+            'id': self.id,
+            'email': self.email,
+            'type': user_type
+            }
+
 
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -112,7 +123,7 @@ def user():
     u = get_user_from_session(session)
     if u is None:
         return jsonify({'user': None})
-    return jsonify({'user': {'email': u.email, 'id': u.id}})
+    return jsonify({'user': u.to_json()})
 
 
 @app.route('/register', methods=['GET', 'POST'])
