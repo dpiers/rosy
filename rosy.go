@@ -39,8 +39,8 @@ func main() {
 	http.ListenAndServe(":9000", &restHandler)
 }
 
-func executeWithDocker(commands []string, w *rest.ResponseWriter) {
-	cmd := exec.Command("sudo", "docker", "run", commands...)
+func executeWithSudo(commands []string, w *rest.ResponseWriter) {
+	cmd := exec.Command("sudo", commands...)
 	stdout, err := cmd.StdoutPipe()
 	errHndlr(err)
 	stderr, err := cmd.StderrPipe()
@@ -81,15 +81,18 @@ func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := r.FormValue("input")
 	commands := []string{
+		"docker",
+		"run",
+		"rosy/multilingual",
 		"echo",
 		input,
 		">",
 		"h.hs",
 		";",
 		"runhaskell",
-		"h.hs"
+		"h.hs",
 	}
-	executeWithDocker(commands, w)
+	executeWithSudo(commands, w)
 }
 
 func EvalPython(w *rest.ResponseWriter, r *rest.Request) {
