@@ -84,13 +84,9 @@ func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
 		"docker",
 		"run",
 		"rosy/multilingual",
-		"echo",
-		input,
-		">",
-		"h.hs",
+		"echo" + input + "> h.hs",
 		";",
-		"runhaskell",
-		"h.hs",
+		"runhaskell h.hs",
 	}
 	executeWithSudo(commands, w)
 }
