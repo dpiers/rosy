@@ -81,7 +81,7 @@ func EvalCpp(w *rest.ResponseWriter, r *rest.Request) {
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo -e" + input + " > c.cpp; g++ c.cpp > a.out; ./a.out",
+		"echo -e " + input + " > c.cpp; g++ c.cpp > a.out; ./a.out",
 	}
 	executeWithSudo(commands, w)
 }
@@ -122,7 +122,7 @@ func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo -e" + input + " > h.hs; runhaskell h.hs",
+		"echo -e " + input + " > h.hs; runhaskell h.hs",
 	}
 	executeWithSudo(commands, w)
 }
@@ -139,7 +139,7 @@ func EvalJavaScript(w *rest.ResponseWriter, r *rest.Request) {
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo -e" + input + " > j.js; rhino j.js",
+		"echo -e " + input + " > j.js; rhino j.js",
 	}
 	executeWithSudo(commands, w)
 
@@ -157,7 +157,7 @@ func EvalPython(w *rest.ResponseWriter, r *rest.Request) {
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo -e" + input + " > p.py; python p.py",
+		"echo -e " + input + " > p.py; python p.py",
 	}
 	executeWithSudo(commands, w)
 }
@@ -174,7 +174,7 @@ func EvalRuby(w *rest.ResponseWriter, r *rest.Request) {
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo -e" + input + " > r.rb; ruby r.rb",
+		"echo -e " + input + " > r.rb; ruby r.rb",
 	}
 	executeWithSudo(commands, w)
 }
