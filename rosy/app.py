@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, render_template, request, redirect, session
+from flask import Flask, send_from_directory, render_template, request, redirect, session, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy  # pylint: disable=E0611
 
 
@@ -42,6 +42,14 @@ def login():
 def logout():
     session.pop('email', None)
     return redirect('/')
+
+@app.route('/user')
+def user():
+    email = session.get('email')
+    if email is None:
+        return jsonify({'user': None})
+    u = User.query.filter_by(email=email).first()
+    return jsonify({'user': {'email': u.email, 'id': u.id}})
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
