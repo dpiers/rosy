@@ -25,6 +25,7 @@ angular.module( 'rosy.try', [
 
   //$scope.code = 'console.log("hello");';
   $scope.code = 'print \'hello\'';
+  $scope.output = 'Waiting for code...';
 
   $scope.editorOptions = {
     theme: 'tomorrow',
@@ -35,6 +36,11 @@ angular.module( 'rosy.try', [
     $http.post('http://tryrosy.com/' + language.name.toLowerCase(), {code: code}).
       success(function(data) {
         console.log(data);
+        $scope.output = data;
+      }).
+      error(function(data) {
+        console.log(data);
+        $scope.output = 'error running code';
       });
   };
 }])
