@@ -25,6 +25,7 @@ func errHndlr(err error) {
 var run_docker = []string{
 	"docker",
 	"run",
+	"-d",
 	"-m=67108864", // 64MB
 	"-c=1",
 	"-n=false",
@@ -63,39 +64,25 @@ func OkResp(w *rest.ResponseWriter, r *rest.Request) {
 }
 
 func executeWithSudo(commands []string, w *rest.ResponseWriter) {
-	cmd := exec.Command("sudo", commands...)
-
-	fmt.Println(cmd.Args)
-
-	stdout, err := cmd.StdoutPipe()
-	errHndlr(err)
-	stderr, err := cmd.StderrPipe()
+	containerBytes, err := exec.Command("sudo", commands...).Output()
 	errHndlr(err)
 
-	if err := cmd.Start(); err != nil {
-		errHndlr(err)
-	}
+	containerBuf := bytes.NewBuffer(containerBytes)
+	containerId := containerBuf.String()
 
-	done := make(chan error)
-	go func() {
-		done <- cmd.Wait()
-	}()
 	select {
-	case <-time.After(3 * time.Second):
-		if err := cmd.Process.Kill(); err != nil {
-			log.Fatal("failed to kill: ", err)
+	case <-time.After(5 * time.Second):
+		logBytes, err := exec.Command("sudo", "docker", "logs", containerId).Output()
+		errHndlr(err)
+
+		if logBytes != nil {
+			w.Write(logBytes)
+		} else {
+			w.Write("your code took too long to run")
 		}
-		<-done // allow goroutine to exit
-		log.Println("process killed")
-	case err := <-done:
-		log.Printf("process done with error = %v", err)
+
+		exec.Command("sudo", "docker", "kill", containerId)
 	}
-
-	buf := bytes.NewBuffer(nil)
-	buf.ReadFrom(stderr)
-	buf.ReadFrom(stdout)
-
-	w.Write(buf.Bytes())
 }
 
 func EvalCpp(w *rest.ResponseWriter, r *rest.Request) {
