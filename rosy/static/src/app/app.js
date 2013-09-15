@@ -27,6 +27,8 @@ angular.module( 'rosy', [
     }
   });
 
+  $scope.$state = $state;
+
   $scope.user = $http.get('/user');
   $scope.isTeacher = function(type) {
     return (type === 'teacher');
