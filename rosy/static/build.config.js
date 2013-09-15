@@ -72,8 +72,10 @@ module.exports = {
     ],
     copyjs: [
       'vendor/ace-builds/src-min-noconflict/*.js',
+      'vendor/font-awesome/font/*'
     ],
     css: [
+      'vendor/font-awesome/css/font-awesome.css',
     ],
     assets: [
     ]
