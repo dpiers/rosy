@@ -12,6 +12,7 @@ import (
 	"github.com/ant0ine/go-json-rest"
 	"net/http"
 	"os/exec"
+	"time"
 )
 
 // Basic error handler
@@ -73,6 +74,21 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 
 	if err := cmd.Start(); err != nil {
 		errHndlr(err)
+	}
+
+	done := make(chan error)
+	go func() {
+		done <- cmd.Wait()
+	}()
+	select {
+	case <-time.After(3 * time.Second):
+		if err := cmd.Process.Kill(); err != nil {
+			log.Fatal("failed to kill: ", err)
+		}
+		<-done // allow goroutine to exit
+		log.Println("process killed")
+	case err := <-done:
+		log.Printf("process done with error = %v", err)
 	}
 
 	buf := bytes.NewBuffer(nil)
