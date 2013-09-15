@@ -24,7 +24,11 @@ func errHndlr(err error) {
 
 var run_docker = []string{
 	"docker",
-	"run -m 1048576 -c",
+	"run",
+	"-m",
+	"33554432", // 32MB
+	"-c",
+	"1",
 	"rosy/multilingual",
 	"sh",
 	"-c",
