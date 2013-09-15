@@ -12,6 +12,7 @@ import (
 	"github.com/ant0ine/go-json-rest"
 	"log"
 	"net/http"
+	"net/url"
 	"os/exec"
 )
 
@@ -75,7 +76,8 @@ func EvalCpp(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := r.FormValue("input")
 	fmt.Println(input)
-	input = fmt.Sprintf("%q", r.FormValue("input"))
+	input, err := url.QueryUnescape(input)
+	errHndlr(err)
 	fmt.Println(input)
 
 	commands := []string{
@@ -98,6 +100,7 @@ func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
 	fmt.Println(input)
 	input = fmt.Sprintf("%q", r.FormValue("input"))
 	fmt.Println(input)
+
 	commands := []string{
 		"docker",
 		"run",
