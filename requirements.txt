@@ -1,6 +1,8 @@
 Flask==0.10.1
+Flask-SQLAlchemy==1.0
 Jinja2==2.7.1
 MarkupSafe==0.18
+SQLAlchemy==0.8.2
 WebOb==1.2.3
 Werkzeug==0.9.4
 -e git+git@github.com:edx/XBlock.git@aa0d60627deac1b3005eb5eb57b44566eb5e5fc5#egg=XBlock-dev
