@@ -81,9 +81,12 @@ func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := r.FormValue("input")
 	commands := []string{
+		"docker",
+		"run",
+		"rosy/multilingual",
 		"sh",
 		"-c",
-		"docker run rosy/multilingual echo" + input + " > h.hs;cat h.hs",
+		"echo " + input + " > h.hs;cat h.hs",
 	}
 	executeWithSudo(commands, w)
 }
