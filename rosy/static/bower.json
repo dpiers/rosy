@@ -10,5 +10,8 @@
     "angular-ui-utils": "~0.0.3",
     "angular-ui-ace": "~0.0.4"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "resolutions": {
+    "angular-ui-router": "~0.2.0"
+  }
 }

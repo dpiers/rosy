@@ -7,8 +7,7 @@ angular.module( 'rosy', [
   'rosy.user',
   'rosy.assignment',
   'rosy.newAssignment',
-  'ui.state',
-  'ui.route',
+  'ui.router',
   'ui.ace'
 ])
 
@@ -25,19 +24,11 @@ angular.module( 'rosy', [
       $scope.pageTitle = toState.data.pageTitle + ' | rosy' ;
     }
   });
-  $scope.$on('$stateChangeStart',
-    function(event, toState, toParams, fromState, fromParams){
-      $http.get('/user').
-        success(function(data) {
-          $scope.user = data.user;
-          if (data.user) {
-            if (toState.name === 'home') {
-              event.preventDefault();
-              $state.transitionTo('user', { location: true, inherit: true, relative: $state.$current });
-            }
-          }
-        });
-  });
+
+  $scope.user = $http.get('/user');
+  $scope.isTeacher = function(type) {
+    return (type === 'teacher');
+  };
 })
 
 ;

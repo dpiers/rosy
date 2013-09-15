@@ -13,7 +13,7 @@
  * specified, as shown below.
  */
 angular.module( 'rosy.home', [
-  'ui.state'
+  'ui.router'
 ])
 
 /**
@@ -38,6 +38,9 @@ angular.module( 'rosy.home', [
  * And of course we define a controller for our route.
  */
 .controller( 'HomeCtrl', function HomeController( $scope ) {
+  $scope.logit = function() {
+    console.log($scope.user.data);
+  };
 })
 
 ;
