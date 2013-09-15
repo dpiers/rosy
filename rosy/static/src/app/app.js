@@ -5,6 +5,7 @@ angular.module( 'rosy', [
   'rosy.about',
   'rosy.try',
   'rosy.user',
+  'rosy.assignment',
   'ui.state',
   'ui.route',
   'ui.ace'

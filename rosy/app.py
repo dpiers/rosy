@@ -1,18 +1,37 @@
 from flask import Flask, send_from_directory, render_template, request, redirect, session, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy  # pylint: disable=E0611
+import requests
 
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 app.secret_key = 'THUPER THECRET'
 db = SQLAlchemy(app)
+EVAL_URL = 'http://tryrosy.com:9000'
 
 
 class Assignment(db.Model):  # ???
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', backref=db.backref('assignments', lazy='dynamic'))
+    title = db.Column(db.String(128))
+    description = db.Column(db.Text)
+    language = db.Column(db.String(32))
+    code = db.Column(db.Text)
+    output = db.Column(db.Text)
+    attempts = db.Column(db.Integer)
+    complete = db.Column(db.Boolean)
+
+    def to_json(self):
+        return {
+                'id': self.id,
+                'title': self.title,
+                'description': self.description,
+                'language': self.language,
+                'code': self.code,
+                'attempts': self.attempts,
+                'complete': self.complete
+                }
 
 
 class User(db.Model):
@@ -34,6 +53,11 @@ def get_user_from_session(session):
     if email is None:
         return None
     return User.query.filter_by(email=email).one()
+
+def eval_code(code):
+    r = requests.post(EVAL_URL + '/python', data={'code': code})
+    print r.text
+    return r.text
 
 @app.route('/')
 def index():
@@ -82,8 +106,27 @@ def assignments():
     if u is None:
         assignments = []
     else:
-        assignments = [{'id': a.id, 'description': a.description} for a in u.assignments.all()]
+        assignments = [a.to_json() for a in u.assignments.all()]
     return jsonify({'assignments': assignments})
+
+@app.route('/assignment/<id>')
+def assignment(id):
+    a = Assignment.query.filter_by(id=id).one()
+    return jsonify(a.to_json())
+
+@app.route('/assignment/<id>/submit', methods=['POST'])
+def submit_assignment(id):
+    assignment = Assignment.query.filter_by(id=id).one()
+    assignment.attempts += 1
+    output = eval_code(request.form.get('code'))
+    if output == assignment.output:
+        assignment.complete = True
+        correct = True
+    else:
+        correct = False
+    db.session.add(assignment)
+    db.session.commit()
+    return jsonify({'correct': correct, 'output': output})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
