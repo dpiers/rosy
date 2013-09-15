@@ -29,6 +29,8 @@ func main() {
 	}
 
 	restHandler.SetRoutes(
+		rest.Route{"OPTIONS", "/*", OkResp},
+
 		rest.Route{"POST", "/cpp", EvalCpp},
 		rest.Route{"POST", "/go", EvalGo},
 		rest.Route{"POST", "/haskell", EvalHaskell},
@@ -38,6 +40,14 @@ func main() {
 	)
 
 	http.ListenAndServe(":9000", &restHandler)
+}
+
+func OkResp(w *rest.ResponseWriter, r *rest.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	empty := make([]byte, 0)
+	w.Write(empty)
 }
 
 func executeWithSudo(commands []string, w *rest.ResponseWriter) {
@@ -63,7 +73,11 @@ func EvalCpp(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
-	input := fmt.Sprintf("%q", r.FormValue("input"))
+	input := r.FormValue("input")
+	fmt.Println(input)
+	input = fmt.Sprintf("%q", r.FormValue("input"))
+	fmt.Println(input)
+
 	commands := []string{
 		"docker",
 		"run",
@@ -80,7 +94,10 @@ func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
-	input := fmt.Sprintf("%q", r.FormValue("input"))
+	input := r.FormValue("input")
+	fmt.Println(input)
+	input = fmt.Sprintf("%q", r.FormValue("input"))
+	fmt.Println(input)
 	commands := []string{
 		"docker",
 		"run",
@@ -98,7 +115,10 @@ func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
-	input := fmt.Sprintf("%q", r.FormValue("input"))
+	input := r.FormValue("input")
+	fmt.Println(input)
+	input = fmt.Sprintf("%q", r.FormValue("input"))
+	fmt.Println(input)
 	commands := []string{
 		"docker",
 		"run",
@@ -115,7 +135,10 @@ func EvalJavaScript(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
-	input := fmt.Sprintf("%q", r.FormValue("input"))
+	input := r.FormValue("input")
+	fmt.Println(input)
+	input = fmt.Sprintf("%q", r.FormValue("input"))
+	fmt.Println(input)
 	commands := []string{
 		"docker",
 		"run",
@@ -133,7 +156,10 @@ func EvalPython(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
-	input := fmt.Sprintf("%q", r.FormValue("input"))
+	input := r.FormValue("input")
+	fmt.Println(input)
+	input = fmt.Sprintf("%q", r.FormValue("input"))
+	fmt.Println(input)
 	commands := []string{
 		"docker",
 		"run",
@@ -150,7 +176,10 @@ func EvalRuby(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
-	input := fmt.Sprintf("%q", r.FormValue("input"))
+	input := r.FormValue("input")
+	fmt.Println(input)
+	input = fmt.Sprintf("%q", r.FormValue("input"))
+	fmt.Println(input)
 	commands := []string{
 		"docker",
 		"run",
