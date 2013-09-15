@@ -106,7 +106,7 @@ func EvalCpp(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
 	commands := append(run_docker, "echo "+input+" > c.cpp; g++ c.cpp > a.out; ./a.out")
-	executeWithSudo(commands, w)
+	go executeWithSudo(commands, w)
 }
 
 func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
@@ -116,7 +116,7 @@ func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
 	commands := append(run_docker, "echo "+input+" > g.go; go run g.go")
-	executeWithSudo(commands, w)
+	go executeWithSudo(commands, w)
 }
 
 func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
@@ -126,7 +126,7 @@ func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
 	commands := append(run_docker, "echo "+input+" > h.hs; runhaskell h.hs")
-	executeWithSudo(commands, w)
+	go executeWithSudo(commands, w)
 }
 
 func EvalJavaScript(w *rest.ResponseWriter, r *rest.Request) {
@@ -136,7 +136,7 @@ func EvalJavaScript(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
 	commands := append(run_docker, "echo "+input+" > j.js; rhino j.js")
-	executeWithSudo(commands, w)
+	go executeWithSudo(commands, w)
 }
 
 func EvalLua(w *rest.ResponseWriter, r *rest.Request) {
@@ -146,7 +146,7 @@ func EvalLua(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
 	commands := append(run_docker, "echo "+input+" > l.lua; lua l.lua")
-	executeWithSudo(commands, w)
+	go executeWithSudo(commands, w)
 }
 
 func EvalPython(w *rest.ResponseWriter, r *rest.Request) {
@@ -156,7 +156,7 @@ func EvalPython(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
 	commands := append(run_docker, "echo "+input+" > p.py; python p.py")
-	executeWithSudo(commands, w)
+	go executeWithSudo(commands, w)
 }
 
 func EvalRuby(w *rest.ResponseWriter, r *rest.Request) {
@@ -166,5 +166,5 @@ func EvalRuby(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
 	commands := append(run_docker, "echo "+input+" > r.rb; ruby r.rb")
-	executeWithSudo(commands, w)
+	go executeWithSudo(commands, w)
 }
