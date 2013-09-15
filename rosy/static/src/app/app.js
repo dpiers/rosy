@@ -3,12 +3,14 @@ angular.module( 'rosy', [
   'templates-common',
   'rosy.home',
   'rosy.about',
+  'rosy.lab',
   'rosy.try',
   'rosy.user',
   'rosy.assignment',
   'rosy.newAssignment',
   'ui.router',
-  'ui.ace'
+  'ui.ace',
+  'firebase'
 ])
 
 .config( function myAppConfig ( $stateProvider, $urlRouterProvider, $httpProvider ) {
