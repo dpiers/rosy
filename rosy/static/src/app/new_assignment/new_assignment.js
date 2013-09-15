@@ -36,7 +36,6 @@ angular.module( 'rosy.newAssignment', [
     'Python',
     'JavaScript',
     'Haskell',
-    'C++',
     'Go'
   ];
 

@@ -72,7 +72,6 @@ angular.module( 'rosy.lecture', [
     {name: 'Python'},
     {name: 'JavaScript'},
     {name: 'Haskell'},
-    {name: 'C++'},
     {name: 'Go'}
   ];
   $scope.language = $scope.languages[1];
