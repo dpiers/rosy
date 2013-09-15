@@ -12,6 +12,7 @@ import (
 	"github.com/ant0ine/go-json-rest"
 	"log"
 	"net/http"
+	"net/url"
 	"os/exec"
 )
 
@@ -91,13 +92,15 @@ func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
 	input := r.FormValue("input")
+	input, err := url.QueryUnescape(input)
+	errHndlr(err)
 	commands := []string{
 		"docker",
 		"run",
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"cat > g.go <<DELIM\n" + input + "\nDELIM; cat g.go; go run g.go",
+		"echo -e \"" + input + "\" ; cat g.go; go run g.go",
 	}
 
 	fmt.Println(commands)
