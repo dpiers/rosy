@@ -79,14 +79,17 @@ func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
-	input := r.FormValue("input")
+	input := fmt.Sprintf("%q", r.FormValue("input"))
+
+	fmt.Println(input)
+
 	commands := []string{
 		"docker",
 		"run",
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo " + input + " > h.hs;cat h.hs",
+		"echo " + input + " > h.hs; runhaskell h.hs",
 	}
 	executeWithSudo(commands, w)
 }
