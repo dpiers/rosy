@@ -1,5 +1,5 @@
 from flask import Flask, send_from_directory, render_template, request, \
-    redirect, session, jsonify
+    redirect, session, jsonify, make_response
 from flask.ext.sqlalchemy import SQLAlchemy  # pylint: disable=E0611
 import requests
 import json
@@ -53,6 +53,17 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User: %r>' % self.email
+
+    def to_json(self):
+        user_type = 'student'
+        teacher = Teacher.query.filter_by(user=self).one()
+        if teacher:
+            user_type = 'teacher'
+        return {
+            'id': self.id,
+            'email': self.email,
+            'type': user_type
+            }
 
 
 class Student(db.Model):
@@ -112,7 +123,7 @@ def user():
     u = get_user_from_session(session)
     if u is None:
         return jsonify({'user': None})
-    return jsonify({'user': {'email': u.email, 'id': u.id}})
+    return jsonify({'user': u.to_json()})
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -178,6 +189,30 @@ def submit_assignment(aid):
     db.session.add(assignment)
     db.session.commit()
     return jsonify({'correct': correct, 'output': output, 'attempts': assignment.attempts})
+
+
+@app.route('/assignments/new', methods=['POST'])
+def new_assignment():
+    user = get_user_from_session(session)
+    teacher = Teacher.query.filter_by(user=user).one()
+    if not teacher:
+        return make_response('', 404)
+    data = json.loads(request.data)
+    for student in teacher.students.all():
+        a = Assignment()
+        a.title = data.get('title', '')
+        a.language = data.get('language', '').lower()
+        a.description = data.get('description', '')
+        a.output = data.get('output', '')
+        a.code = data.get('code', '')
+        a.student = student
+        a.teacher = teacher
+        a.attempts = 0
+        a.complete = False
+        db.session.add(a)
+    db.session.commit()
+
+    return jsonify(a.to_json())
 
 
 if __name__ == '__main__':
