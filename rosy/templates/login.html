@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sign In | rosy</title>
+    <link rel="stylesheet" type="text/css"
+      href="/static/build/assets/rosy-0.0.1.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <div class="row-fluid">
+          <h3 class="muted pull-left">rosy</h3>
+          <h3 class="pull-right">
+            <a class="btn btn-large" href="/login">Sign In</a>
+            <a class="btn btn-large btn-success" href="/register">Sign Up</a>
+          </h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <form action="" method="POST" class="form-horizontal">
+        <div class="control-group">
+          <label class="control-label" for="inputEmail">Email</label>
+          <div class="controls">
+            <input type="text" name="email" id="inputEmail" placeholder="Email">
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="inputPassword">Password</label>
+          <div class="controls">
+            <input type="password" name="password" id="inputPassword" placeholder="Password">
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="controls">
+            <button type="submit" class="btn">Sign In</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-inner">
+          <ul class="social">
+          </ul>
+
+          <p>
+            (c) 2013
+            <a href="https://twitter.com/dpiers">Daniel Piers</a>
+            and
+            <a href="https://twitter.com/jimrollenhagen">Jim Rollenhagen</a>.
+            <br />
+            Rosy is built on
+            <a href="http://www.angularjs.org">AngularJS</a>,
+            <a href="http://getbootstrap.com">Bootstrap</a>, 
+            <a href="http://flask.pocoo.org/">Flask</a>,
+            <a href="http://golang.org/">Go</a>,
+            <a href="https://www.docker.io/">Docker</a>,
+            and everything else hipster.
+          </p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

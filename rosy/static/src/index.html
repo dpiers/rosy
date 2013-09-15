@@ -1,19 +1,25 @@
 <!DOCTYPE html>
-<html ng-app="rosy" ng-controller="AppCtrl">
+<html ng-app="rosy" ng-controller="AppCtrl" ng-cloak>
   <head>
     <title ng-bind="pageTitle"></title>
 
     <!-- compiled CSS --><% styles.forEach( function ( file ) { %>
-    <link rel="stylesheet" type="text/css" href="<%= file %>" /><% }); %>
+    <link rel="stylesheet" type="text/css" href="/static/build/<%= file %>" /><% }); %>
 
     <!-- compiled JavaScript --><% scripts.forEach( function ( file ) { %>
-    <script type="text/javascript" src="<%= file %>" charset="utf-8"></script><% }); %>
+    <script type="text/javascript" src="/static/build/<%= file %>" charset="utf-8"></script><% }); %>
 
   </head>
   <body>
     <div class="container">
       <div class="masthead">
-        <h3 class="muted">rosy</h3>
+        <div class="row-fluid">
+          <h3 class="muted pull-left">rosy</h3>
+          <h3 class="pull-right">
+            <a class="btn btn-large" href="/login">Sign In</a>
+            <a class="btn btn-large btn-success" href="/register">Sign Up</a>
+          </h3>
+        </div>
         <div class="navbar">
           <div class="navbar-inner">
             <div class="container">
@@ -60,9 +66,10 @@
             Rosy is built on
             <a href="http://www.angularjs.org">AngularJS</a>,
             <a href="http://getbootstrap.com">Bootstrap</a>, 
+            <a href="http://flask.pocoo.org/">Flask</a>,
             <a href="http://golang.org/">Go</a>,
-            and
-            <a href="https://www.docker.io/">Docker</a>.
+            <a href="https://www.docker.io/">Docker</a>,
+            and everything else hipster.
           </p>
         </div>
       </div>
