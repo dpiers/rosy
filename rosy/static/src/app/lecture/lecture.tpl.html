@@ -1,29 +1,23 @@
 <div>
-  <div class="row-fluid">
-    <h2>{{ language.name || 'Select a language' }}</h2>
-  </div>
-
   <div class="row-fluid" style="margin-bottom: 10px;">
-    <div class="span4">
-      <form>
-        <select id="language-select" ng-model="language" ng-options="lang.name for lang in languages">
-        </select>
-      </form>
-    </div>
-
-    <div class="span8">
-      <form class="form-horizontal" ng-show="isTeacher(user.data.type)">
-        <div class="control-group">
-          <label class="control-label" for="controlSelect">Edit
-            control:</label>
-          <div class="controls">
-            <select id="student-select" ng-model="control"
-              ng-options="(student.user.id || student.id) as (student.email || student.user.email) for student in students">
-            </select>
-          </div>
+    <form class="form-horizontal" ng-show="isTeacher(user.data.type)">
+      <div class="control-group">
+        <label class="control-label" for="language-select">Language:</label>
+        <div class="controls">
+          <select id="language-select" ng-model="language" ng-options="lang.name for lang in languages">
+          </select>
         </div>
-      </form>
-    </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="controlSelect">Edit
+          control:</label>
+        <div class="controls">
+          <select id="student-select" ng-model="control"
+            ng-options="(student.user.id || student.id) as (student.email || student.user.email) for student in students">
+          </select>
+        </div>
+      </div>
+    </form>
   </div>
 
 
