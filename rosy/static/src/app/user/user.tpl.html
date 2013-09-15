@@ -5,6 +5,10 @@
 
 
   <div class="row-fluid">
-    content
+    <ul>
+      <li ng-repeat="a in assignments">
+        <a href="#/assignment/{{ a.id }}">{{ a.description }}</a>
+      </li>
+    </ul>
   </div>
 </div>

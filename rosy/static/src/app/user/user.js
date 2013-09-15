@@ -20,6 +20,11 @@ angular.module( 'rosy.user', [
      success(function(data) {
        $scope.user = data.user;
      });
+
+   $http.get('/assignments').
+     success(function(data) {
+       $scope.assignments = data.assignments;
+   });
 }])
 
 ;
