@@ -6,12 +6,9 @@
     "angular-mocks": "~1.0.7",
     "bootstrap": "~2.3.2",
     "angular-bootstrap": "~0.3.0",
-    "angular-ui-router": "~0.0.1",
+    "angular-ui-router": "~0.2.0",
     "angular-ui-utils": "~0.0.3",
-    "angular-ui-ace": "~0.0.4"
-  },
-  "dependencies": {},
-  "resolutions": {
-    "angular-ui-router": "~0.2.0"
+    "angular-ui-ace": "~0.0.4",
+    "angular-fire": "~0.3.1"
   }
 }
