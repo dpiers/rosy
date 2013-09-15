@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/http"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -27,12 +28,12 @@ var run_docker = []string{
 	"docker",
 	"run",
 	"-d",
-	"-m=67108864", // 32MB
+	"-i",
+	"-t",
+	"-m=67108864", // 64MB
 	"-c=1",
 	"-n=false",
 	"rosy/multilingual",
-	"sh",
-	"-c",
 }
 
 func main() {
@@ -64,23 +65,33 @@ func OkResp(w *rest.ResponseWriter, r *rest.Request) {
 	w.Write(empty)
 }
 
-func executeWithSudo(commands []string, w *rest.ResponseWriter) {
-	cmd := exec.Command("sudo", commands...)
+func executeWithSudo(command string, w *rest.ResponseWriter) {
+	launchContainer := exec.Command("sudo", run_docker...)
 
-	fmt.Println(cmd.Args)
+	fmt.Println(launchContainer.Args)
 
-	stdout, err := cmd.StdoutPipe()
-	errHndlr(err)
-	stderr, err := cmd.StderrPipe()
+	stdout, err := launchContainer.StdoutPipe()
 	errHndlr(err)
 
-	if err := cmd.Start(); err != nil {
+	if err := launchContainer.Start(); err != nil {
 		log.Fatal(err)
 	}
 
 	buf := bytes.NewBuffer(nil)
-	buf.ReadFrom(stderr)
 	buf.ReadFrom(stdout)
+
+	containerId := string(buf.Bytes())
+	errHndlr(err)
+
+	fmt.Println(containerId)
+
+	cmd := exec.Command("sudo", "docker", "attach", containerId)
+
+	cmd.Stdin = strings.NewReader(command)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	err = cmd.Run()
 
 	done := make(chan error)
 	go func() {
@@ -89,13 +100,14 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 
 	select {
 	case <-time.After(10 * time.Second):
-		w.Write(buf.Bytes())
-		cmd.Process.Kill()
-		cmd.Process.Wait()
+		halt := exec.Command("sudo", "docker", "stop", "-t=10", containerId)
+		halt.Run()
+		fmt.Println("stopping container: " + containerId)
+		w.Write([]byte("took too much time"))
 
 	case err := <-done:
 		errHndlr(err)
-		w.Write(buf.Bytes())
+		w.Write(out.Bytes())
 	}
 }
 
@@ -105,8 +117,7 @@ func EvalCpp(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
-	commands := append(run_docker, "echo "+input+" > c.cpp; g++ c.cpp > a.out; ./a.out")
-	executeWithSudo(commands, w)
+	executeWithSudo("echo "+input+" > c.cpp; g++ c.cpp > a.out; ./a.out", w)
 }
 
 func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
@@ -115,8 +126,7 @@ func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
-	commands := append(run_docker, "echo "+input+" > g.go; go run g.go")
-	executeWithSudo(commands, w)
+	executeWithSudo("echo "+input+" > g.go; go run g.go", w)
 }
 
 func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
@@ -125,8 +135,7 @@ func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
-	commands := append(run_docker, "echo "+input+" > h.hs; runhaskell h.hs")
-	executeWithSudo(commands, w)
+	executeWithSudo("echo "+input+" > h.hs; runhaskell h.hs", w)
 }
 
 func EvalJavaScript(w *rest.ResponseWriter, r *rest.Request) {
@@ -135,8 +144,7 @@ func EvalJavaScript(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
-	commands := append(run_docker, "echo "+input+" > j.js; rhino j.js")
-	executeWithSudo(commands, w)
+	executeWithSudo("echo "+input+" > j.js; rhino j.js", w)
 }
 
 func EvalLua(w *rest.ResponseWriter, r *rest.Request) {
@@ -145,8 +153,7 @@ func EvalLua(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
-	commands := append(run_docker, "echo "+input+" > l.lua; lua l.lua")
-	executeWithSudo(commands, w)
+	executeWithSudo("echo "+input+" > l.lua; lua l.lua", w)
 }
 
 func EvalPython(w *rest.ResponseWriter, r *rest.Request) {
@@ -155,8 +162,7 @@ func EvalPython(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
-	commands := append(run_docker, "echo "+input+" > p.py; python p.py")
-	executeWithSudo(commands, w)
+	executeWithSudo("echo "+input+" > p.py; python p.py", w)
 }
 
 func EvalRuby(w *rest.ResponseWriter, r *rest.Request) {
@@ -165,6 +171,5 @@ func EvalRuby(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
-	commands := append(run_docker, "echo "+input+" > r.rb; ruby r.rb")
-	executeWithSudo(commands, w)
+	executeWithSudo("echo "+input+" > r.rb; ruby r.rb", w)
 }
