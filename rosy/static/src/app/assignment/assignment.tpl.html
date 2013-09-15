@@ -1,0 +1,32 @@
+<div>
+  <div class="row-fluid" style="margin-bottom: 10px;">
+    <h2>{{ assignment.title }}</h2>
+    <blockquote>
+      <p ng-bind-html-unsafe="assignment.safeDescription"</p>
+    </blockquote>
+  </div>
+
+
+  <div class="row-fluid">
+    <div class="span8">
+      <form>
+        <div class="ace-editor" ui-ace="editorOptions"
+          ng-model="assignment.code">
+        </div>
+      </form>
+    </div>
+    <div class="span4">
+      <span>
+        <a class="btn btn-primary" ng-click="runCode(assignment.code,
+          language)">Run!</a>
+        <span style="margin-left: 10px;">{{ assignment.attempts }}
+          attempts</span>
+      </span>
+      <span ng-show="correct && submitted"><i class="text-success icon-ok-sign"></i> Correct!</span>
+      <span ng-show="!correct && submitted"><i class="text-danger
+          icon-exclamation-sign"></i> Incorrect!</span>
+      <br/>
+      <pre>{{ output }}</pre>
+    </div>
+  </div>
+</div>
