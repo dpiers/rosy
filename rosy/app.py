@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, render_template, request, redirect, session
+from flask import Flask, send_from_directory, render_template, request, redirect, session, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy  # pylint: disable=E0611
 
 
@@ -6,6 +6,13 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 app.secret_key = 'THUPER THECRET'
 db = SQLAlchemy(app)
+
+
+class Assignment(db.Model):  # ???
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.Text)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', backref=db.backref('assignments', lazy='dynamic'))
 
 
 class User(db.Model):
@@ -21,6 +28,12 @@ class User(db.Model):
     def __repr__(self):
         return '<User: %r>' % self.email
 
+
+def get_user_from_session(session):
+    email = session.get('email')
+    if email is None:
+        return None
+    return User.query.filter_by(email=email).one()
 
 @app.route('/')
 def index():
@@ -43,6 +56,13 @@ def logout():
     session.pop('email', None)
     return redirect('/')
 
+@app.route('/user')
+def user():
+    u = get_user_from_session(session)
+    if u is None:
+        return jsonify({'user': None})
+    return jsonify({'user': {'email': u.email, 'id': u.id}})
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -56,5 +76,14 @@ def register():
         return redirect('/')
     return render_template('register.html')
 
+@app.route('/assignments')
+def assignments():
+    u = get_user_from_session(session)
+    if u is None:
+        assignments = []
+    else:
+        assignments = [{'id': a.id, 'description': a.description} for a in u.assignments.all()]
+    return jsonify({'assignments': assignments})
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
