@@ -17,7 +17,7 @@ angular.module( 'rosy.lab', [
 })
 
 .controller( 'LabCtrl', ['$scope', '$http', 'angularFire', function LabCtrl($scope, $http, angularFire) {
-  var ref = new Firebase('https://something.firebaseio.com/lab');
+  var ref = new Firebase('https://rosy.firebaseio.com/lab');
 
   $scope.readonly = true;
 
@@ -63,7 +63,7 @@ angular.module( 'rosy.lab', [
     control: $scope.control
   };
 
-  angularFire(ref, $scope, "synced");
+  angularFire(ref, $scope, "code");
 }])
 
 ;
