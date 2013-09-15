@@ -26,7 +26,8 @@ func errHndlr(err error) {
 var run_docker = []string{
 	"docker",
 	"run",
-	"-m=33554432", // 32MB
+	"-d",
+	"-m=67108864", // 32MB
 	"-c=1",
 	"-n=false",
 	"rosy/multilingual",
@@ -80,6 +81,8 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 	buf := bytes.NewBuffer(nil)
 	buf.ReadFrom(stderr)
 	buf.ReadFrom(stdout)
+
+	fmt.Println("%v", buf.ReadBytes("\n"))
 
 	done := make(chan error)
 	go func() {
