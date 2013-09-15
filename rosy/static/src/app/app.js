@@ -6,6 +6,7 @@ angular.module( 'rosy', [
   'rosy.try',
   'rosy.user',
   'rosy.assignment',
+  'rosy.newAssignment',
   'ui.state',
   'ui.route',
   'ui.ace'
