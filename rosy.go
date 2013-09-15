@@ -39,8 +39,8 @@ func main() {
 	http.ListenAndServe(":9000", &restHandler)
 }
 
-func executeWithDocker(command string, w *rest.ResponseWriter) {
-	cmd := exec.Command("sudo", "docker", "run", command)
+func executeWithDocker(commands []string, w *rest.ResponseWriter) {
+	cmd := exec.Command("sudo", "docker", "run", commands...)
 	stdout, err := cmd.StdoutPipe()
 	errHndlr(err)
 	stderr, err := cmd.StderrPipe()
@@ -80,8 +80,16 @@ func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
 	input := r.FormValue("input")
-	command := fmt.Sprintf("echo %s > h.hs; runhaskell h.hs", input)
-	executeWithDocker(command, w)
+	commands := []string{
+		"echo",
+		input,
+		">",
+		"h.hs",
+		";",
+		"runhaskell",
+		"h.hs"
+	}
+	executeWithDocker(commands, w)
 }
 
 func EvalPython(w *rest.ResponseWriter, r *rest.Request) {
