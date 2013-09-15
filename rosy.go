@@ -77,19 +77,24 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 		log.Fatal(err)
 	}
 
-	buf := bytes.NewBuffer(nil)
-	buf.ReadFrom(stderr)
-	buf.ReadFrom(stdout)
-	w.Write(buf.Bytes())
-
+	done := make(chan error)
 	go func() {
-		time.Sleep(5 * time.Second)
-		if buf == nil && !cmd.ProcessState.Exited() {
-			w.Write([]byte("process took too long")
-			cmd.Process.Kill()
-			cmd.Process.Wait()
-		}
+		done <- cmd.Wait()
 	}()
+
+	select {
+	case <-time.After(3 * time.Second):
+		cmd.Process.Kill()
+		cmd.Process.Wait()
+		w.Write([]byte("took too much time"))
+
+	case err := <-done:
+		buf := bytes.NewBuffer(nil)
+		buf.ReadFrom(stderr)
+		buf.ReadFrom(stdout)
+		w.Write(buf.Bytes())
+
+	}
 }
 
 func EvalCpp(w *rest.ResponseWriter, r *rest.Request) {
