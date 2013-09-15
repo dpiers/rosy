@@ -7,14 +7,11 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
+	"bytes"	
 	"github.com/ant0ine/go-json-rest"
-	"log"
 	"net/http"
 	"os/exec"
-	"strings"
-	"time"
 )
 
 // Basic error handler
@@ -34,6 +31,7 @@ var run_docker = []string{
 	"-c=1",
 	"-n=false",
 	"rosy/multilingual",
+	"/bin/bash",
 }
 
 func main() {
@@ -66,9 +64,12 @@ func OkResp(w *rest.ResponseWriter, r *rest.Request) {
 }
 
 func executeWithSudo(command string, w *rest.ResponseWriter) {
-	containerId, err := exec.Command("sudo", run_docker...).Output()
+	containerBytes, err := exec.Command("sudo", run_docker...).Output()
 	errHndlr(err)
 
+	buf := bytes.NewBuffer(containerBytes)
+	containerId := buf.String()
+	
 	fmt.Println(containerId)
 }
 
