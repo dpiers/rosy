@@ -76,9 +76,13 @@ func executeWithSudo(command string, w *rest.ResponseWriter) {
 
 	cmd.Stdin = strings.NewReader(command)
 	var out bytes.Buffer
+	var errStr bytes.Buffer
 	cmd.Stdout = &out
+	cmd.Stderr = &errStr
 
 	err = cmd.Start()
+	fmt.Printf("%x", errStr.Bytes())
+	fmt.Printf("%x", out.Bytes())
 
 	done := make(chan error)
 	go func() {
