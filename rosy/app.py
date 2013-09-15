@@ -74,6 +74,7 @@ class Student(db.Model):
         return {
             'id': self.id,
             'user': self.user.to_json(),
+            'teacher': self.teacher.to_json(),
             'assignments': [a.to_json() for a in self.teacher.assignments.all()]
             }
 
@@ -82,6 +83,12 @@ class Teacher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship("User", backref=db.backref("teacher", uselist=False))
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'user': self.user.to_json()
+            }
 
 
 def get_user_from_session(sesh):

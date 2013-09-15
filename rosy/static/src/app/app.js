@@ -3,7 +3,7 @@ angular.module( 'rosy', [
   'templates-common',
   'rosy.home',
   'rosy.about',
-  'rosy.lab',
+  'rosy.lecture',
   'rosy.try',
   'rosy.user',
   'rosy.assignment',

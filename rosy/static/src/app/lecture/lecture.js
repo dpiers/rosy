@@ -1,25 +1,33 @@
-angular.module( 'rosy.lab', [
+angular.module( 'rosy.lecture', [
   'ui.router',
   'firebase'
 ])
 
 .config(function config($stateProvider) {
-  $stateProvider.state( 'lab', {
-    url: '/lab',
+  $stateProvider.state( 'lecture', {
+    url: '/lecture',
     views: {
       'main': {
-        controller: 'LabCtrl',
-        templateUrl: 'lab/lab.tpl.html'
+        controller: 'LectureCtrl',
+        templateUrl: 'lecture/lecture.tpl.html'
       }
     },
-    data: { pageTitle: 'Lab' }
+    data: { pageTitle: 'Lecture' }
   });
 })
 
-.controller( 'LabCtrl', ['$scope', '$http', 'angularFire', function LabCtrl($scope, $http, angularFire) {
-  var ref = new Firebase('https://rosy.firebaseio.com/lab');
+.controller( 'LectureCtrl', ['$scope', '$http', 'angularFire', function LectureCtrl($scope, $http, angularFire) {
+
+  var refCode = new Firebase('https://rosy.firebaseio.com/lecture/code');
+  var refOutput = new Firebase('https://rosy.firebaseio.com/lecture/output');
+  var refStudents = new Firebase('https://rosy.firebaseio.com/lecture/students');
 
   $scope.readonly = true;
+  $scope.connectedStudents = [];
+
+  $scope.isTeacher = function(type) {
+    return (type === 'teacher');
+  };
 
   $scope.user.then(function(data) {
     var user = data.data;
@@ -27,6 +35,15 @@ angular.module( 'rosy.lab', [
     if (user.type === 'teacher') {
       $scope.control = user.id;
       $scope.readonly = false;
+
+      $http.get('/students').
+        success(function(data) {
+          console.log(data);
+          $scope.students = [user].concat(data.students);
+          $scope.controlling = $scope.students[0];
+      });
+    } else {
+      $scope.connectedStudents.push(user);
     }
   });
 
@@ -63,7 +80,9 @@ angular.module( 'rosy.lab', [
     control: $scope.control
   };
 
-  angularFire(ref, $scope, "code");
+  angularFire(refCode, $scope, 'code');
+  angularFire(refOutput, $scope, 'output');
+  //angularFire(refStudents, $scope, 'students');
 }])
 
 ;
