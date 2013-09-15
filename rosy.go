@@ -79,10 +79,7 @@ func executeWithSudo(command string, w *rest.ResponseWriter) {
 
 	buf := bytes.NewBuffer(nil)
 	buf.ReadFrom(stdout)
-
-	containerId := string(buf.Bytes())
-	errHndlr(err)
-
+	containerId := buf.String()
 	fmt.Println(containerId)
 
 	cmd := exec.Command("sudo", "docker", "attach", containerId)
@@ -91,7 +88,7 @@ func executeWithSudo(command string, w *rest.ResponseWriter) {
 	var out bytes.Buffer
 	cmd.Stdout = &out
 
-	err = cmd.Run()
+	err = cmd.Start()
 
 	done := make(chan error)
 	go func() {
