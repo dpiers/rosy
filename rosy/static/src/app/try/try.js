@@ -15,7 +15,7 @@ angular.module( 'rosy.try', [
   });
 })
 
-.controller( 'TryCtrl', ['$http', function TryCtrl($scope) {
+.controller( 'TryCtrl', ['$scope', '$http', function TryCtrl($scope, $http) {
   $scope.languages = [
     {name: 'Ruby'},
     {name: 'Python'},
