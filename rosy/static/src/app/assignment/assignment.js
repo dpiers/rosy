@@ -36,7 +36,8 @@ angular.module( 'rosy.assignment', [
   $scope.runCode = function(code, language) {
     $scope.submitted = true;
     $scope.assignment.attempts += 1;
-    $http.post('/assignment/' + assignmentId + '/submit', {code: escape(code)}).
+    var data = JSON.stringify({code: code});
+    $http.post('/assignment/' + assignmentId + '/submit', data).
       success(function(data) {
         console.log(data);
         $scope.correct = data.correct;

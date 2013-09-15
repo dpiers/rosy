@@ -22,8 +22,8 @@
         <span style="margin-left: 10px;">{{ assignment.attempts }}
           attempts</span>
       </span>
-      <span ng-show="correct && submitted"><i class="text-success icon-ok-sign"></i> Correct!</span>
-      <span ng-show="!correct && submitted"><i class="text-danger
+      <span style="margin-top: 5px;" class="pull-right" ng-show="correct && submitted"><i class="text-success icon-ok-sign"></i> Correct!</span>
+      <span style="margin-top: 5px;" class="pull-right" ng-show="!correct && submitted"><i class="text-danger
           icon-exclamation-sign"></i> Incorrect!</span>
       <br/>
       <pre>{{ output }}</pre>

@@ -1,6 +1,7 @@
 from flask import Flask, send_from_directory, render_template, request, redirect, session, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy  # pylint: disable=E0611
 import requests
+import json
 
 
 app = Flask(__name__)
@@ -55,9 +56,8 @@ def get_user_from_session(session):
     return User.query.filter_by(email=email).one()
 
 def eval_code(code):
-    r = requests.post(EVAL_URL + '/python', data={'code': code})
-    print r.text
-    return r.text
+    r = requests.post(EVAL_URL + '/python', data={'input': code})
+    return r.text.strip()
 
 @app.route('/')
 def index():
@@ -118,7 +118,8 @@ def assignment(id):
 def submit_assignment(id):
     assignment = Assignment.query.filter_by(id=id).one()
     assignment.attempts += 1
-    output = eval_code(request.form.get('code'))
+    data = json.loads(request.data)
+    output = eval_code(data.get('code'))
     if output == assignment.output:
         assignment.complete = True
         correct = True

@@ -15,15 +15,18 @@
       <div class="masthead">
         <div class="row-fluid">
           <h3 class="muted pull-left">rosy</h3>
-          <h3 class="pull-right">
+          <h3 class="pull-right" ng-hide="user">
             <a class="btn btn-large" href="/login">Sign In</a>
             <a class="btn btn-large btn-success" href="/register">Sign Up</a>
+          </h3>
+          <h3 class="pull-right" ng-show="user">
+            {{ user.email }}
           </h3>
         </div>
         <div class="navbar">
           <div class="navbar-inner">
             <div class="container">
-              <ul class="nav">
+              <ul class="nav" ng-hide="user">
                 <li ui-route="/home" ng-class="{active:$uiRoute}">
                   <a href="#/home">
                     <i class="icon-home"></i>
@@ -40,6 +43,20 @@
                   <a href="#/try">
                     <i class="icon-pencil"></i>
                     Try it!
+                  </a>
+                </li>
+              </ul>
+              <ul class="nav" ng-hide="show">
+                <li ui-route="/user" ng-class="{active:$uiRoute}">
+                  <a href="#/user">
+                    <i class="icon-user"></i>
+                    Dashboard
+                  </a>
+                </li>
+                <li ui-route="/unknown" ng-class="{active:$uiRoute}">
+                  <a href="#/unknown">
+                    <i class="icon-info-sign"></i>
+                    Something Else?
                   </a>
                 </li>
               </ul>
@@ -69,7 +86,7 @@
             <a href="http://flask.pocoo.org/">Flask</a>,
             <a href="http://golang.org/">Go</a>,
             <a href="https://www.docker.io/">Docker</a>,
-            and everything else hipster.
+            and all the other hip buzzwords.
           </p>
         </div>
       </div>
