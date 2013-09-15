@@ -97,8 +97,10 @@ func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"cat > g.go <<DELIM\n" + input + "\nDELIM; go run g.go",
+		"cat > g.go <<DELIM\n" + input + "\nDELIM; cat g.go; go run g.go",
 	}
+
+	fmt.Println(commands)
 
 	executeWithSudo(commands, w)
 
