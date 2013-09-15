@@ -7,11 +7,13 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"bytes"	
 	"github.com/ant0ine/go-json-rest"
 	"net/http"
 	"os/exec"
+	"strings"
+	"time"
 )
 
 // Basic error handler
@@ -69,8 +71,31 @@ func executeWithSudo(command string, w *rest.ResponseWriter) {
 
 	buf := bytes.NewBuffer(containerBytes)
 	containerId := buf.String()
-	
-	fmt.Println(containerId)
+
+	cmd := exec.Command("sudo", "docker", "attach", containerId)
+
+	cmd.Stdin = strings.NewReader(command)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	err = cmd.Start()
+
+	done := make(chan error)
+	go func() {
+		done <- cmd.Wait()
+	}()
+
+	select {
+	case <-time.After(10 * time.Second):
+		halt := exec.Command("sudo", "docker", "stop", "-t=10", containerId)
+		halt.Run()
+		fmt.Println("stopping container: " + containerId)
+		w.Write([]byte("took too much time"))
+
+	case err := <-done:
+		errHndlr(err)
+		w.Write(out.Bytes())
+	}
 }
 
 func EvalCpp(w *rest.ResponseWriter, r *rest.Request) {
