@@ -33,8 +33,7 @@ angular.module( 'rosy.try', [
   };
 
   $scope.runCode = function(code, language) {
-    //$http.post('http://tryrosy.com/' + language.name.toLowerCase(), {code: code}).
-    $http.get('http://tryrosy.com/' + language.name.toLowerCase()).
+    $http.post('http://tryrosy.com:9000/' + language.name.toLowerCase(), {code: escape(code)}).
       success(function(data) {
         console.log(data);
         $scope.output = data;
