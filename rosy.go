@@ -77,6 +77,10 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 		log.Fatal(err)
 	}
 
+	buf := bytes.NewBuffer(nil)
+	buf.ReadFrom(stderr)
+	buf.ReadFrom(stdout)
+
 	done := make(chan error)
 	go func() {
 		done <- cmd.Wait()
@@ -89,12 +93,8 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 		<-done // allow goroutine to exit
 		w.Write([]byte("error: program took too long to run\n"))
 	case err := <-done:
-		log.Printf("error: %v", err)
+		log.Printf("finished: %v", err)
 	}
-
-	buf := bytes.NewBuffer(nil)
-	buf.ReadFrom(stderr)
-	buf.ReadFrom(stdout)
 
 	w.Write(buf.Bytes())
 }
