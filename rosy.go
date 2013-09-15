@@ -26,6 +26,7 @@ var run_docker = []string{
 	"docker",
 	"run",
 	"-d",
+	"-i",
 	"-m=67108864", // 64MB
 	"-c=1",
 	"-n=false",
@@ -70,15 +71,17 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 	containerBuf := bytes.NewBuffer(containerBytes)
 	containerId := containerBuf.String()
 
-	output = make([]byte, 0)
+	fmt.Printf(containerId)
 
-	for i := range 5 {
+	output := make([]byte, 0)
+
+	for i := 0; i < 5; i++ {
 		logBytes, err := exec.Command("sudo", "docker", "logs", containerId).Output()
 		errHndlr(err)
 
 		if logBytes != nil {
-			fmt.Println("%x", logBytes)
-			output = append(output, logBytes)
+			fmt.Printf("%s\n", string(logBytes[:]))
+			output = append(output, logBytes...)
 		}
 
 		time.Sleep(1 * time.Second)
@@ -100,7 +103,7 @@ func EvalCpp(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
 	commands := append(run_docker, "echo "+input+" > c.cpp; g++ c.cpp > a.out; ./a.out")
-	go executeWithSudo(commands, w)
+	executeWithSudo(commands, w)
 }
 
 func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
@@ -110,7 +113,7 @@ func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
 	commands := append(run_docker, "echo "+input+" > g.go; go run g.go")
-	go executeWithSudo(commands, w)
+	executeWithSudo(commands, w)
 }
 
 func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
@@ -120,7 +123,7 @@ func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
 	commands := append(run_docker, "echo "+input+" > h.hs; runhaskell h.hs")
-	go executeWithSudo(commands, w)
+	executeWithSudo(commands, w)
 }
 
 func EvalJavaScript(w *rest.ResponseWriter, r *rest.Request) {
@@ -130,7 +133,7 @@ func EvalJavaScript(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
 	commands := append(run_docker, "echo "+input+" > j.js; rhino j.js")
-	go executeWithSudo(commands, w)
+	executeWithSudo(commands, w)
 }
 
 func EvalLua(w *rest.ResponseWriter, r *rest.Request) {
@@ -140,7 +143,7 @@ func EvalLua(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
 	commands := append(run_docker, "echo "+input+" > l.lua; lua l.lua")
-	go executeWithSudo(commands, w)
+	executeWithSudo(commands, w)
 }
 
 func EvalPython(w *rest.ResponseWriter, r *rest.Request) {
@@ -149,8 +152,8 @@ func EvalPython(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
-	commands := append(run_docker, "echo "+input+" > p.py; python p.py")
-	go executeWithSudo(commands, w)
+	commands := append(run_docker, "echo "+input+" > p.py; python p.py; /bin/bash")
+	executeWithSudo(commands, w)
 }
 
 func EvalRuby(w *rest.ResponseWriter, r *rest.Request) {
@@ -160,5 +163,5 @@ func EvalRuby(w *rest.ResponseWriter, r *rest.Request) {
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
 	commands := append(run_docker, "echo "+input+" > r.rb; ruby r.rb")
-	go executeWithSudo(commands, w)
+	executeWithSudo(commands, w)
 }
