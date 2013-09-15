@@ -78,7 +78,7 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 		if logBytes != nil {
 			w.Write(logBytes)
 		} else {
-			w.Write("your code took too long to run")
+			w.Write([]byte("your code took too long to run"))
 		}
 
 		exec.Command("sudo", "docker", "kill", containerId)
