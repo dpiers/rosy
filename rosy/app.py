@@ -137,7 +137,7 @@ def register():
     return render_template('register.html')
 
 
-@app.route('/eval/<language>')
+@app.route('/eval/<language>', methods=['POST'])
 def eval_route(language):
     data = json.loads(request.data)
     output = eval_code(data.get('code'), language)

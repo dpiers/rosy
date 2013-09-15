@@ -37,7 +37,7 @@ angular.module( 'rosy.try', [
     $http.post('/eval/' + language.name.toLowerCase(), data).
       success(function(data) {
         console.log(data);
-        $scope.output = data;
+        $scope.output = data.output;
       }).
       error(function(data) {
         console.log(data);
