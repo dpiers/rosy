@@ -1,4 +1,4 @@
-angular.module( 'ngBoilerplate.about', [
+angular.module( 'rosy.about', [
   'ui.state',
   'placeholders',
   'ui.bootstrap'
