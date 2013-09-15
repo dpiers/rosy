@@ -82,8 +82,6 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 	buf.ReadFrom(stderr)
 	buf.ReadFrom(stdout)
 
-	fmt.Println("%v", buf.ReadBytes("\n"))
-
 	done := make(chan error)
 	go func() {
 		done <- cmd.Wait()
@@ -91,9 +89,9 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 
 	select {
 	case <-time.After(10 * time.Second):
+		w.Write(buf.Bytes())
 		cmd.Process.Kill()
 		cmd.Process.Wait()
-		w.Write([]byte("took too much time"))
 
 	case err := <-done:
 		errHndlr(err)
