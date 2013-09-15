@@ -87,9 +87,8 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 	}()
 	select {
 	case <-time.After(3 * time.Second):
-		if err := cmd.Process.Kill(); err != nil {
-			log.Fatal("failed to kill: ", err)
-		}
+		cmd.Process.Kill()
+		cmd.Wait()
 		<-done // allow goroutine to exit
 		w.Write([]byte("process took to long to complete"))
 	case err := <-done:
