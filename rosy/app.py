@@ -1,4 +1,5 @@
-from flask import Flask, send_from_directory, render_template, request, redirect, session, jsonify
+from flask import Flask, send_from_directory, render_template, request, \
+    redirect, session, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy  # pylint: disable=E0611
 import requests
 import json
@@ -14,7 +15,8 @@ EVAL_URL = 'http://tryrosy.com:9000'
 class Assignment(db.Model):  # ???
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User', backref=db.backref('assignments', lazy='dynamic'))
+    user = db.relationship('User',
+                           backref=db.backref('assignments', lazy='dynamic'))
     title = db.Column(db.String(128))
     description = db.Column(db.Text)
     language = db.Column(db.String(32))
@@ -25,14 +27,14 @@ class Assignment(db.Model):  # ???
 
     def to_json(self):
         return {
-                'id': self.id,
-                'title': self.title,
-                'description': self.description,
-                'language': self.language,
-                'code': self.code,
-                'attempts': self.attempts,
-                'complete': self.complete
-                }
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'language': self.language,
+            'code': self.code,
+            'attempts': self.attempts,
+            'complete': self.complete
+            }
 
 
 class User(db.Model):
@@ -49,20 +51,23 @@ class User(db.Model):
         return '<User: %r>' % self.email
 
 
-def get_user_from_session(session):
-    email = session.get('email')
+def get_user_from_session(sesh):
+    email = sesh.get('email')
     if email is None:
         return None
     return User.query.filter_by(email=email).one()
+
 
 def eval_code(code):
     r = requests.post(EVAL_URL + '/python', data={'input': code})
     return r.text.strip()
 
+
 @app.route('/')
 def index():
     print session.get('email')
     return send_from_directory('static/build', 'index.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -75,10 +80,12 @@ def login():
             return redirect('/')
     return render_template('login.html')
 
+
 @app.route('/logout')
 def logout():
     session.pop('email', None)
     return redirect('/')
+
 
 @app.route('/user')
 def user():
@@ -86,6 +93,7 @@ def user():
     if u is None:
         return jsonify({'user': None})
     return jsonify({'user': {'email': u.email, 'id': u.id}})
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -100,8 +108,9 @@ def register():
         return redirect('/')
     return render_template('register.html')
 
+
 @app.route('/assignments')
-def assignments():
+def list_assignments():
     u = get_user_from_session(session)
     if u is None:
         assignments = []
@@ -109,14 +118,16 @@ def assignments():
         assignments = [a.to_json() for a in u.assignments.all()]
     return jsonify({'assignments': assignments})
 
+
 @app.route('/assignment/<id>')
-def assignment(id):
-    a = Assignment.query.filter_by(id=id).one()
+def assignment_detail(aid):
+    a = Assignment.query.filter_by(id=aid).one()
     return jsonify(a.to_json())
 
+
 @app.route('/assignment/<id>/submit', methods=['POST'])
-def submit_assignment(id):
-    assignment = Assignment.query.filter_by(id=id).one()
+def submit_assignment(aid):
+    assignment = Assignment.query.filter_by(id=aid).one()
     assignment.attempts += 1
     data = json.loads(request.data)
     output = eval_code(data.get('code'))
@@ -128,6 +139,7 @@ def submit_assignment(id):
     db.session.add(assignment)
     db.session.commit()
     return jsonify({'correct': correct, 'output': output})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
