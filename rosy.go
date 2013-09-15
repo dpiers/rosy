@@ -90,15 +90,16 @@ func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
-	input := fmt.Sprintf("%q", r.FormValue("input"))
+	input := r.FormValue("input")
 	commands := []string{
 		"docker",
 		"run",
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo -e" + input + " > g.go; go run g.go",
+		"cat > g.go <<DELIM\n" + input + "\nDELIM; go run g.go",
 	}
+
 	executeWithSudo(commands, w)
 
 }
