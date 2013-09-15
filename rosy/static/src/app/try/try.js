@@ -32,7 +32,7 @@ angular.module( 'rosy.try', [
   };
 
   $scope.runCode = function(code, language) {
-    $http.post('http://50.23.95.61/' + language, {code: code}).
+    $http.post('http://tryrosy.com/' + language, {code: code}).
       success(function(data) {
         console.log(data);
       });
