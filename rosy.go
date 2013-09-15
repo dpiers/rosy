@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/http"
 	"os/exec"
+	"time"
 )
 
 // Basic error handler
@@ -74,6 +75,21 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 
 	if err := cmd.Start(); err != nil {
 		log.Fatal(err)
+	}
+
+	done := make(chan error)
+	go func() {
+		done <- cmd.Wait()
+	}()
+	select {
+	case <-time.After(5 * time.Second):
+		if err := cmd.Process.Kill(); err != nil {
+			log.Fatal("failed to kill: ", err)
+		}
+		<-done // allow goroutine to exit
+		w.Write([]byte("error: program took too long to run\n"))
+	case err := <-done:
+		log.Printf("error: %v", err)
 	}
 
 	buf := bytes.NewBuffer(nil)
