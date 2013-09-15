@@ -101,7 +101,7 @@ func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo -e \"" + input + "\" ; cat g.go; go run g.go",
+		"echo -e " + input + " > g.go; cat g.go; go run g.go",
 	}
 
 	fmt.Println(commands)
