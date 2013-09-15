@@ -13,13 +13,14 @@
   <body>
     <div class="container">
       <div class="masthead">
-        <div class="row-fluid">
-          <h3 class="muted pull-left""logit()">rosy</h3>
-          <h3 class="pull-right" ng-hide="user.data.id">
+        <div class="row-fluid" style="background-color: #f17478;">
+          <!--<h3 class="muted pull-left">rosy</h3>-->
+          <img src="static/build/assets/rosy.png" style="height:60px;" />
+          <h3 class="pull-right" ng-hide="user.data.id" style="margin-right: 10px;">
             <a class="btn btn-large" href="/login">Sign In</a>
             <a class="btn btn-large btn-success" href="/register">Sign Up</a>
           </h3>
-          <h3 class="pull-right" ng-show="user.data.id">
+          <h3 class="pull-right muted" ng-show="user.data.id" style="margin-right: 10px; color: #fdfdfd; font-weight: normal;">
             {{ user.data.email }}
           </h3>
         </div>
@@ -33,12 +34,12 @@
                     Home
                   </a>
                 </li>
-                <li ng-class="{active:$state.includes('about')}">
-                  <a href="#/about">
-                    <i class="icon-info-sign"></i>
-                    What is it?
-                  </a>
-                </li>
+                <!--<li ng-class="{active:$state.includes('about')}">-->
+                  <!--<a href="#/about">-->
+                    <!--<i class="icon-info-sign"></i>-->
+                    <!--What is it?-->
+                  <!--</a>-->
+                <!--</li>-->
                 <li ng-class="{active:$state.includes('try')}">
                   <a href="#/try">
                     <i class="icon-pencil"></i>
