@@ -19,7 +19,10 @@ angular.module( 'rosy.try', [
   $scope.languages = [
     {name: 'Ruby'},
     {name: 'Python'},
-    {name: 'JavaScript'}
+    {name: 'JavaScript'},
+    {name: 'Haskell'},
+    {name: 'C++'},
+    {name: 'Go'}
   ];
   $scope.language = $scope.languages[1];
 

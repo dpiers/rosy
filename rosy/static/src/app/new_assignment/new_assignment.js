@@ -34,7 +34,10 @@ angular.module( 'rosy.newAssignment', [
   $scope.languages = [
     'Ruby',
     'Python',
-    'JavaScript'
+    'JavaScript',
+    'Haskell',
+    'C++',
+    'Go'
   ];
 
   $scope.submitForm = function(form) {
