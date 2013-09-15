@@ -81,11 +81,10 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 	buf.ReadFrom(stderr)
 	buf.ReadFrom(stdout)
 
-	select {
-	case <-time.After(5 * time.Second):
-		cmd.Process.Kill()
-		cmd.Wait()
-	}
+	go func() {
+		time.Sleep(5 * time.Second)
+		exec.Command("sudo", "kill", "-9", string(cmd.Process.Pid))
+	}()
 
 	w.Write(buf.Bytes())
 }
