@@ -20,7 +20,7 @@ angular.module( 'rosy.lecture', [
 
   var refCode = new Firebase('https://rosy.firebaseio.com/lecture/code');
   var refOutput = new Firebase('https://rosy.firebaseio.com/lecture/output');
-  var refStudents = new Firebase('https://rosy.firebaseio.com/lecture/students');
+  var refControl = new Firebase('https://rosy.firebaseio.com/lecture/control');
 
   $scope.readonly = true;
   $scope.connectedStudents = [];
@@ -29,8 +29,28 @@ angular.module( 'rosy.lecture', [
     return (type === 'teacher');
   };
 
+  $scope.students = [];
+
+  $scope.$watch('control', function() {
+    if (!angular.isDefined('$scope.user.data.id')) {
+      return;
+    }
+    if (!$scope.userData) {
+      return;
+    }
+    var uid = $scope.control;
+    if ($scope.userData.type === 'student') {
+      if (uid === $scope.userData.id) {
+        $scope.readonly = false;
+      } else {
+        $scope.readonly = true;
+      }
+    }
+  });
+
   $scope.user.then(function(data) {
     var user = data.data;
+    $scope.userData = data.data;
 
     if (user.type === 'teacher') {
       $scope.control = user.id;
@@ -38,9 +58,9 @@ angular.module( 'rosy.lecture', [
 
       $http.get('/students').
         success(function(data) {
-          console.log(data);
           $scope.students = [user].concat(data.students);
-          $scope.controlling = $scope.students[0];
+          console.log($scope.students);
+          $scope.control = $scope.students[0].id; // actually the teacher
       });
     } else {
       $scope.connectedStudents.push(user);
@@ -75,14 +95,9 @@ angular.module( 'rosy.lecture', [
       });
   };
 
-  $scope.synced = {
-    code: $scope.code,
-    control: $scope.control
-  };
-
   angularFire(refCode, $scope, 'code');
   angularFire(refOutput, $scope, 'output');
-  //angularFire(refStudents, $scope, 'students');
+  angularFire(refControl, $scope, 'control');
 }])
 
 ;
