@@ -32,6 +32,7 @@ func main() {
 		rest.Route{"POST", "/cpp", EvalCpp},
 		rest.Route{"POST", "/go", EvalGo},
 		rest.Route{"POST", "/haskell", EvalHaskell},
+		rest.Route{"POST", "/javascript", EvalJavaScript},
 		rest.Route{"POST", "/python", EvalPython},
 		rest.Route{"POST", "/ruby", EvalRuby},
 	)
@@ -62,7 +63,16 @@ func EvalCpp(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
-	w.Write([]byte("eval cpp...\n"))
+	input := fmt.Sprintf("%q", r.FormValue("input"))
+	commands := []string{
+		"docker",
+		"run",
+		"rosy/multilingual",
+		"sh",
+		"-c",
+		"echo " + input + " > c.cpp; g++ c.cpp > a.out; ./a.out",
+	}
+	executeWithSudo(commands, w)
 }
 
 func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
@@ -70,7 +80,16 @@ func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
-	w.Write([]byte("eval go...\n"))
+	input := fmt.Sprintf("%q", r.FormValue("input"))
+	commands := []string{
+		"docker",
+		"run",
+		"rosy/multilingual",
+		"sh",
+		"-c",
+		"echo " + input + " > g.go; go run g.go",
+	}
+	executeWithSudo(commands, w)
 
 }
 
@@ -91,12 +110,39 @@ func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
 	executeWithSudo(commands, w)
 }
 
+func EvalJavaScript(w *rest.ResponseWriter, r *rest.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+
+	input := fmt.Sprintf("%q", r.FormValue("input"))
+	commands := []string{
+		"docker",
+		"run",
+		"rosy/multilingual",
+		"sh",
+		"-c",
+		"echo " + input + " > j.js; rhino j.js",
+	}
+	executeWithSudo(commands, w)
+
+}
+
 func EvalPython(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
-	w.Write([]byte("eval python...\n"))
+	input := fmt.Sprintf("%q", r.FormValue("input"))
+	commands := []string{
+		"docker",
+		"run",
+		"rosy/multilingual",
+		"sh",
+		"-c",
+		"echo " + input + " > p.py; python p.py",
+	}
+	executeWithSudo(commands, w)
 }
 
 func EvalRuby(w *rest.ResponseWriter, r *rest.Request) {
@@ -104,5 +150,14 @@ func EvalRuby(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
-	w.Write([]byte("eval ruby...\n"))
+	input := fmt.Sprintf("%q", r.FormValue("input"))
+	commands := []string{
+		"docker",
+		"run",
+		"rosy/multilingual",
+		"sh",
+		"-c",
+		"echo " + input + " > r.rb; ruby r.rb",
+	}
+	executeWithSudo(commands, w)
 }
