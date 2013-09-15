@@ -34,14 +34,14 @@ angular.module( 'rosy.assignment', [
   });
 
   $scope.runCode = function(code, language) {
-    $scope.submitted = true;
-    $scope.assignment.attempts += 1;
     var data = JSON.stringify({code: code});
     $http.post('/assignment/' + assignmentId + '/submit', data).
       success(function(data) {
+        $scope.submitted = true;
         console.log(data);
         $scope.correct = data.correct;
         $scope.output = data.output;
+        $scope.assignment.attempts = data.attempts;
       }).
       error(function(data) {
         console.log(data);

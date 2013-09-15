@@ -14,8 +14,11 @@ EVAL_URL = 'http://tryrosy.com:9000'
 
 class Assignment(db.Model):  # ???
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User',
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    student = db.relationship('Student',
+                           backref=db.backref('assignments', lazy='dynamic'))
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
+    teacher = db.relationship('Teacher',
                            backref=db.backref('assignments', lazy='dynamic'))
     title = db.Column(db.String(128))
     description = db.Column(db.Text)
@@ -28,6 +31,7 @@ class Assignment(db.Model):  # ???
     def to_json(self):
         return {
             'id': self.id,
+            'teacher': self.teacher.id,
             'title': self.title,
             'description': self.description,
             'language': self.language,
@@ -51,6 +55,20 @@ class User(db.Model):
         return '<User: %r>' % self.email
 
 
+class Student(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship("User", backref=db.backref("student", uselist=False))
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
+    teacher = db.relationship("Teacher", backref=db.backref("students", lazy='dynamic'))
+
+
+class Teacher(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship("User", backref=db.backref("teacher", uselist=False))
+
+
 def get_user_from_session(sesh):
     email = sesh.get('email')
     if email is None:
@@ -58,8 +76,10 @@ def get_user_from_session(sesh):
     return User.query.filter_by(email=email).one()
 
 
-def eval_code(code):
-    r = requests.post(EVAL_URL + '/python', data={'input': code})
+def eval_code(code, language):
+    print 'submitting'
+    url = EVAL_URL + '/' + language
+    r = requests.post(url, data={'input': code})
     return r.text.strip()
 
 
@@ -102,11 +122,26 @@ def register():
         # XXX TODO HASH PASSWORDS
         u = User(request.form.get('email'), request.form.get('password'))
         db.session.add(u)
+        if request.form.get('type') == 'teacher':
+            teacher = Teacher()
+            teacher.user = u
+            db.session.add(teacher)
+        else:
+            student = Student()
+            student.user = u
+            db.session.add(student)
         db.session.commit()
 
         session['email'] = u.email
         return redirect('/')
     return render_template('register.html')
+
+
+@app.route('/eval/<language>')
+def eval_route(language):
+    data = json.loads(request.data)
+    output = eval_code(data.get('code'), language)
+    return jsonify({'output': output})
 
 
 @app.route('/assignments')
@@ -115,22 +150,26 @@ def list_assignments():
     if u is None:
         assignments = []
     else:
-        assignments = [a.to_json() for a in u.assignments.all()]
+        if u.teacher:
+            teacher = u.teacher
+        else:
+            teacher = u.student.teacher
+        assignments = [a.to_json() for a in teacher.assignments.all()]
     return jsonify({'assignments': assignments})
 
 
-@app.route('/assignment/<id>')
+@app.route('/assignment/<aid>')
 def assignment_detail(aid):
     a = Assignment.query.filter_by(id=aid).one()
     return jsonify(a.to_json())
 
 
-@app.route('/assignment/<id>/submit', methods=['POST'])
+@app.route('/assignment/<aid>/submit', methods=['POST'])
 def submit_assignment(aid):
     assignment = Assignment.query.filter_by(id=aid).one()
     assignment.attempts += 1
     data = json.loads(request.data)
-    output = eval_code(data.get('code'))
+    output = eval_code(data.get('code'), assignment.language)
     if output == assignment.output:
         assignment.complete = True
         correct = True
@@ -138,7 +177,7 @@ def submit_assignment(aid):
         correct = False
     db.session.add(assignment)
     db.session.commit()
-    return jsonify({'correct': correct, 'output': output})
+    return jsonify({'correct': correct, 'output': output, 'attempts': assignment.attempts})
 
 
 if __name__ == '__main__':
