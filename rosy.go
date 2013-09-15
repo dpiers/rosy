@@ -94,6 +94,7 @@ func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
 	input := r.FormValue("input")
 	input, err := url.QueryUnescape(input)
 	errHndlr(err)
+	input = fmt.Sprintf("%q", r.FormValue("input"))
 	commands := []string{
 		"docker",
 		"run",
