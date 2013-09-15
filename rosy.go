@@ -53,6 +53,9 @@ func OkResp(w *rest.ResponseWriter, r *rest.Request) {
 
 func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 	cmd := exec.Command("sudo", commands...)
+
+	fmt.Println(cmd.Args)
+
 	stdout, err := cmd.StdoutPipe()
 	errHndlr(err)
 	stderr, err := cmd.StderrPipe()
@@ -81,7 +84,7 @@ func EvalCpp(w *rest.ResponseWriter, r *rest.Request) {
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo -e " + input + " > c.cpp; g++ c.cpp > a.out; ./a.out",
+		"echo " + input + " > c.cpp; g++ c.cpp > a.out; ./a.out",
 	}
 	executeWithSudo(commands, w)
 }
@@ -92,16 +95,19 @@ func EvalGo(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
 	input := r.FormValue("input")
+	fmt.Println(input)
 	input, err := url.QueryUnescape(input)
+	fmt.Println(input)
 	errHndlr(err)
 	input = fmt.Sprintf("%q", r.FormValue("input"))
+	fmt.Println(input)
 	commands := []string{
 		"docker",
 		"run",
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo -e " + input + " > g.go; cat g.go; go run g.go",
+		"echo " + input + " > g.go; cat g.go; go run g.go",
 	}
 
 	fmt.Println(commands)
@@ -122,7 +128,7 @@ func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo -e " + input + " > h.hs; runhaskell h.hs",
+		"echo " + input + " > h.hs; runhaskell h.hs",
 	}
 	executeWithSudo(commands, w)
 }
@@ -139,7 +145,7 @@ func EvalJavaScript(w *rest.ResponseWriter, r *rest.Request) {
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo -e " + input + " > j.js; rhino j.js",
+		"echo " + input + " > j.js; rhino j.js",
 	}
 	executeWithSudo(commands, w)
 
@@ -157,7 +163,7 @@ func EvalPython(w *rest.ResponseWriter, r *rest.Request) {
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo -e " + input + " > p.py; python p.py",
+		"echo " + input + " > p.py; python p.py",
 	}
 	executeWithSudo(commands, w)
 }
@@ -174,7 +180,7 @@ func EvalRuby(w *rest.ResponseWriter, r *rest.Request) {
 		"rosy/multilingual",
 		"sh",
 		"-c",
-		"echo -e " + input + " > r.rb; ruby r.rb",
+		"echo " + input + " > r.rb; ruby r.rb",
 	}
 	executeWithSudo(commands, w)
 }
