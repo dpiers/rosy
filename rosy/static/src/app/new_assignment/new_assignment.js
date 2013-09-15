@@ -1,5 +1,5 @@
 angular.module( 'rosy.newAssignment', [
-  'ui.state'
+  'ui.router'
 ])
 
 .config(function config($stateProvider) {
@@ -43,12 +43,7 @@ angular.module( 'rosy.newAssignment', [
     $http.post('/assignments/new', data).
       success(function(data) {
         console.log('new assignment: ', data);
-        $state.transitionTo('assignment', {
-          location: true,
-          inherit: true,
-          relative: $state.$current,
-          id: data.id
-        });
+        $state.go('assignment', {id: data.id});
     }).
       error(function(data) {
         console.log(data);

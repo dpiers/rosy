@@ -1,5 +1,5 @@
 angular.module( 'rosy.about', [
-  'ui.state',
+  'ui.router',
   'placeholders',
   'ui.bootstrap'
 ])

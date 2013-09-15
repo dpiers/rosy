@@ -1,5 +1,5 @@
 angular.module( 'rosy.user', [
-  'ui.state'
+  'ui.router'
 ])
 
 .config(function config($stateProvider) {
@@ -16,15 +16,35 @@ angular.module( 'rosy.user', [
 })
 
 .controller( 'UserCtrl', ['$scope', '$http', function UserCtrl($scope, $http) {
-   $http.get('/user').
-     success(function(data) {
-       $scope.user = data.user;
-     });
+  $scope.user.then(function(data) {
+    var user = data.data;
 
-   $http.get('/assignments').
-     success(function(data) {
-       $scope.assignments = data.assignments;
-   });
+    $http.get('/assignments').
+      success(function(data) {
+        $scope.assignments = data.assignments;
+    });
+    if (user.type === 'teacher') {
+      $http.get('/students').
+        success(function(data) {
+          $scope.students = data.students;
+      });
+    }
+
+  });
+
+  $scope.numAssignments = function(student) {
+    return student.assignments.length;
+  };
+
+  $scope.numCompleted = function(student) {
+    var completed = 0;
+    student.assignments.forEach(function(assn) {
+      if (assn.complete) {
+        completed++;
+      }
+    });
+    return completed;
+  };
 }])
 
 ;

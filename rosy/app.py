@@ -56,7 +56,7 @@ class User(db.Model):
 
     def to_json(self):
         user_type = 'student'
-        teacher = Teacher.query.filter_by(user=self).one()
+        teacher = self.teacher
         if teacher:
             user_type = 'teacher'
         return {
@@ -72,6 +72,13 @@ class Student(db.Model):
     user = db.relationship("User", backref=db.backref("student", uselist=False))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
     teacher = db.relationship("Teacher", backref=db.backref("students", lazy='dynamic'))
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'user': self.user.to_json(),
+            'assignments': [a.to_json() for a in self.assignments.all()]
+            }
 
 
 class Teacher(db.Model):
@@ -123,7 +130,7 @@ def user():
     u = get_user_from_session(session)
     if u is None:
         return jsonify({'user': None})
-    return jsonify({'user': u.to_json()})
+    return jsonify(u.to_json())
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -153,6 +160,14 @@ def eval_route(language):
     data = json.loads(request.data)
     output = eval_code(data.get('code'), language)
     return jsonify({'output': output})
+
+
+@app.route('/students')
+def list_students():
+    u = get_user_from_session(session)
+    teacher = u.teacher
+    students = teacher.students.all()
+    return jsonify({'students': [s.to_json() for s in students]})
 
 
 @app.route('/assignments')

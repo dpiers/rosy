@@ -1,8 +1,9 @@
 <div>
   <div class="row-fluid" style="margin-bottom: 10px;">
     <span>
-      <h2 class="span9 pull-left">{{ user.email }}</h2>
-      <span class="span3 pull-right" style="margin-top: 25px;">
+      <h2 class="span9 pull-left">{{ user.data.email }}</h2>
+      <span class="span3 pull-right" style="margin-top: 25px;"
+        ng-show="isTeacher(user.data.type)">
         <a href="#/assignments/new" class="btn btn-primary">
           New Assignment
         </a>
@@ -12,10 +13,40 @@
 
 
   <div class="row-fluid">
-    <ul>
-      <li ng-repeat="a in assignments">
-        <a href="#/assignment/{{ a.id }}">{{ a.title }}</a>
-      </li>
-    </ul>
+    <h3>Assignments</h3>
+    <table class="table table-striped">
+      <thead>
+        <th>Name</th>
+        <th>Attempts</th>
+        <th>Completed?</th>
+      </thead>
+      <tbody>
+        <tr ng-repeat="a in assignments">
+          <td><a href="#/assignment/{{ a.id }}">{{ a.title }}</a></td>
+          <td>{{ a.attempts }}</td>
+          <td>
+            <i class="icon-check-sign text-success" ng-show="a.complete"></i>
+            <i class="icon-exclamation-sign text-error" ng-hide="a.complete"></i>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 ng-show="isTeacher(user.data.type)">Students</h3>
+    <table class="table table-striped" ng-show="isTeacher(user.data.type)">
+      <thead>
+        <th>Student</th>
+        <th># of Assignments</th>
+        <th>Assignments Complete</th>
+      </thead>
+      <tbody>
+        <tr ng-repeat="s in students">
+          <td><a href="#/students/{{ s.id }}">{{ s.user.email }}</a></td>
+          <td>{{ numAssignments(s) }}</td>
+          <td>{{ numCompleted(s) }}</td>
+        </tr>
+      </tbody>
+    </table>
+
   </div>
 </div>

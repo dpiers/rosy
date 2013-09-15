@@ -1,5 +1,5 @@
 angular.module( 'rosy.try', [
-  'ui.state'
+  'ui.router'
 ])
 
 .config(function config($stateProvider) {
