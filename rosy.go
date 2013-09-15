@@ -80,9 +80,6 @@ func EvalHaskell(w *rest.ResponseWriter, r *rest.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
 	input := fmt.Sprintf("%q", r.FormValue("input"))
-
-	fmt.Println(input)
-
 	commands := []string{
 		"docker",
 		"run",
