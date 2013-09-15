@@ -1,6 +1,8 @@
-from flask import Flask, send_from_directory, render_template, request, redirect, session, jsonify
+from flask import Flask, send_from_directory, render_template, request, \
+    redirect, session, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy  # pylint: disable=E0611
 import requests
+import json
 
 
 app = Flask(__name__)
@@ -12,8 +14,12 @@ EVAL_URL = 'http://tryrosy.com:9000'
 
 class Assignment(db.Model):  # ???
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User', backref=db.backref('assignments', lazy='dynamic'))
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    student = db.relationship('Student',
+                           backref=db.backref('assignments', lazy='dynamic'))
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
+    teacher = db.relationship('Teacher',
+                           backref=db.backref('assignments', lazy='dynamic'))
     title = db.Column(db.String(128))
     description = db.Column(db.Text)
     language = db.Column(db.String(32))
@@ -24,14 +30,15 @@ class Assignment(db.Model):  # ???
 
     def to_json(self):
         return {
-                'id': self.id,
-                'title': self.title,
-                'description': self.description,
-                'language': self.language,
-                'code': self.code,
-                'attempts': self.attempts,
-                'complete': self.complete
-                }
+            'id': self.id,
+            'teacher': self.teacher.id,
+            'title': self.title,
+            'description': self.description,
+            'language': self.language,
+            'code': self.code,
+            'attempts': self.attempts,
+            'complete': self.complete
+            }
 
 
 class User(db.Model):
@@ -48,21 +55,39 @@ class User(db.Model):
         return '<User: %r>' % self.email
 
 
-def get_user_from_session(session):
-    email = session.get('email')
+class Student(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship("User", backref=db.backref("student", uselist=False))
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
+    teacher = db.relationship("Teacher", backref=db.backref("students", lazy='dynamic'))
+
+
+class Teacher(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship("User", backref=db.backref("teacher", uselist=False))
+
+
+def get_user_from_session(sesh):
+    email = sesh.get('email')
     if email is None:
         return None
     return User.query.filter_by(email=email).one()
 
-def eval_code(code):
-    r = requests.post(EVAL_URL + '/python', data={'code': code})
-    print r.text
-    return r.text
+
+def eval_code(code, language):
+    print 'submitting'
+    url = EVAL_URL + '/' + language
+    r = requests.post(url, data={'input': code})
+    return r.text.strip()
+
 
 @app.route('/')
 def index():
     print session.get('email')
     return send_from_directory('static/build', 'index.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -75,10 +100,12 @@ def login():
             return redirect('/')
     return render_template('login.html')
 
+
 @app.route('/logout')
 def logout():
     session.pop('email', None)
     return redirect('/')
+
 
 @app.route('/user')
 def user():
@@ -87,6 +114,7 @@ def user():
         return jsonify({'user': None})
     return jsonify({'user': {'email': u.email, 'id': u.id}})
 
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -94,31 +122,54 @@ def register():
         # XXX TODO HASH PASSWORDS
         u = User(request.form.get('email'), request.form.get('password'))
         db.session.add(u)
+        if request.form.get('type') == 'teacher':
+            teacher = Teacher()
+            teacher.user = u
+            db.session.add(teacher)
+        else:
+            student = Student()
+            student.user = u
+            db.session.add(student)
         db.session.commit()
 
         session['email'] = u.email
         return redirect('/')
     return render_template('register.html')
 
+
+@app.route('/eval/<language>')
+def eval_route(language):
+    data = json.loads(request.data)
+    output = eval_code(data.get('code'), language)
+    return jsonify({'output': output})
+
+
 @app.route('/assignments')
-def assignments():
+def list_assignments():
     u = get_user_from_session(session)
     if u is None:
         assignments = []
     else:
-        assignments = [a.to_json() for a in u.assignments.all()]
+        if u.teacher:
+            teacher = u.teacher
+        else:
+            teacher = u.student.teacher
+        assignments = [a.to_json() for a in teacher.assignments.all()]
     return jsonify({'assignments': assignments})
 
-@app.route('/assignment/<id>')
-def assignment(id):
-    a = Assignment.query.filter_by(id=id).one()
+
+@app.route('/assignment/<aid>')
+def assignment_detail(aid):
+    a = Assignment.query.filter_by(id=aid).one()
     return jsonify(a.to_json())
 
-@app.route('/assignment/<id>/submit', methods=['POST'])
-def submit_assignment(id):
-    assignment = Assignment.query.filter_by(id=id).one()
+
+@app.route('/assignment/<aid>/submit', methods=['POST'])
+def submit_assignment(aid):
+    assignment = Assignment.query.filter_by(id=aid).one()
     assignment.attempts += 1
-    output = eval_code(request.form.get('code'))
+    data = json.loads(request.data)
+    output = eval_code(data.get('code'), assignment.language)
     if output == assignment.output:
         assignment.complete = True
         correct = True
@@ -126,7 +177,8 @@ def submit_assignment(id):
         correct = False
     db.session.add(assignment)
     db.session.commit()
-    return jsonify({'correct': correct, 'output': output})
+    return jsonify({'correct': correct, 'output': output, 'attempts': assignment.attempts})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

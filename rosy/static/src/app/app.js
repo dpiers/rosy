@@ -11,7 +11,7 @@ angular.module( 'rosy', [
   'ui.ace'
 ])
 
-.config( function myAppConfig ( $stateProvider, $urlRouterProvider ) {
+.config( function myAppConfig ( $stateProvider, $urlRouterProvider, $httpProvider ) {
   $urlRouterProvider.otherwise( '/home' );
 })
 
@@ -26,15 +26,16 @@ angular.module( 'rosy', [
   });
   $scope.$on('$stateChangeStart',
     function(event, toState, toParams, fromState, fromParams){
-      if (toState.name === 'home') {
-        $http.get('/user').
-          success(function(data) {
-            if (data.user) {
+      $http.get('/user').
+        success(function(data) {
+          $scope.user = data.user;
+          if (data.user) {
+            if (toState.name === 'home') {
               event.preventDefault();
               $state.transitionTo('user', { location: true, inherit: true, relative: $state.$current });
             }
-          });
-      }
+          }
+        });
   });
 })
 
