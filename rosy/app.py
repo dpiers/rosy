@@ -14,9 +14,6 @@ EVAL_URL = 'http://tryrosy.com:9000'
 
 class Assignment(db.Model):  # ???
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
-    student = db.relationship('Student',
-                           backref=db.backref('assignments', lazy='dynamic'))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
     teacher = db.relationship('Teacher',
                            backref=db.backref('assignments', lazy='dynamic'))
@@ -77,7 +74,7 @@ class Student(db.Model):
         return {
             'id': self.id,
             'user': self.user.to_json(),
-            'assignments': [a.to_json() for a in self.assignments.all()]
+            'assignments': [a.to_json() for a in self.teacher.assignments.all()]
             }
 
 
