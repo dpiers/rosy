@@ -89,11 +89,11 @@ func executeWithSudo(commands []string, w *rest.ResponseWriter) {
 		w.Write([]byte("took too much time"))
 
 	case err := <-done:
+	     	errHndlr(err)
 		buf := bytes.NewBuffer(nil)
 		buf.ReadFrom(stderr)
 		buf.ReadFrom(stdout)
 		w.Write(buf.Bytes())
-
 	}
 }
 
